@@ -1,119 +1,57 @@
-// crud relaciones  y rutas protegidas
+// ==========================================
+// IMPORTACIONES
+// ==========================================
 
-const accountService = require("../services/accountService");
+// Mongoose es una librería ODM (Object Document Mapper)
+// Actúa como "traductor" entre Node.js y MongoDB:
+//   - Nos permite definir Schemas (estructura de los datos)
+//   - Convierte objetos JavaScript en documentos MongoDB y viceversa
+//   - Provee métodos como .find(), .create(), .findById(), etc.
+// ⚠️ Hay un typo en el nombre de la variable: "mongosee" debería ser "mongoose"
+//    aunque funciona igual porque es solo el nombre de la variable local
+const mongosee = require('mongoose');
 
-/**
- * POST /api/cuentas
- * Ruta protegida: Crea una nueva cuenta bancaria para el usuario autenticado.
- */
-const crear = async (req, res, next) => {
-  try {
-    const { tipoCuenta, moneda } = req.body;
 
-    if (!tipoCuenta) {
-      return res.status(400).json({
-        status: "error",
-        message: "El tipo de cuenta es obligatorio (caja_ahorro o cuenta_corriente).",
-        data: null,
-      });
+// ==========================================
+// FUNCIÓN DE CONEXIÓN
+// ==========================================
+
+// Función asíncrona porque conectarse a una base de datos es una operación
+// que toma tiempo — necesitamos esperar (await) a que se establezca la conexión
+const connectDB = async () => {
+    try {
+        // Intentamos conectarnos a MongoDB usando la URI de conexión
+        // process.env.MONGODB_URI → variable de entorno guardada en el archivo .env
+        // Ejemplo de URI: "mongodb+srv://usuario:pass@cluster.mongodb.net/talkABank"
+        // La URI contiene: protocolo + credenciales + host + nombre de la base de datos
+        // await → esperamos a que la conexión se establezca antes de continuar
+        // conn  → objeto con información sobre la conexión establecida
+        const conn = await mongosee.connect(process.env.MONGODB_URI)
+
+        // Si la conexión fue exitosa, mostramos el host al que nos conectamos
+        // conn.connection.host → dirección del servidor MongoDB
+        // Ejemplo: "cluster0.abc123.mongodb.net" (MongoDB Atlas) o "127.0.0.1" (local)
+        // Útil para confirmar visualmente en consola que la app se conectó al lugar correcto
+        console.log(`MongoDB conectado: ${conn.connection.host}`);
+
+    } catch (error) {
+
+        // Si la conexión falla (credenciales incorrectas, red caída, URI mal formada, etc.)
+        // mostramos el mensaje de error específico para facilitar el debugging
+        console.error(`Error al conectar a MongoDB: ${error.message}`);
+
+        // process.exit(1) → detiene COMPLETAMENTE la aplicación Node.js
+        // El argumento "1" es el código de salida: 0 = éxito, cualquier otro número = error
+        // Esto es intencional: si no hay base de datos, la app no tiene sentido seguir corriendo
+        // Es preferible fallar rápido y con claridad que seguir ejecutándose sin BD
+        process.exit(1);
     }
-
-    // La cuenta se asocia automáticamente al usuario del token
-    const cuenta = await accountService.crearCuenta({
-      tipoCuenta,
-      moneda,
-      usuarioId: req.usuario.id,
-    });
-
-    res.status(201).json({
-      status: "ok",
-      message: "Cuenta bancaria creada exitosamente en Talk A Bank.",
-      data: { cuenta },
-    });
-  } catch (error) {
-    next(error);
-  }
 };
 
-/**
- * GET /api/cuentas/mis-cuentas
- * Ruta protegida: Lista las cuentas del usuario autenticado.
- * Ejemplo de consulta con relación (populate).
- */
-const misCuentas = async (req, res, next) => {
-  try {
-    const cuentas = await accountService.obtenerCuentasDeUsuario(req.usuario.id);
-    res.status(200).json({
-      status: "ok",
-      message: `Tienes ${cuentas.length} cuenta(s) activa(s).`,
-      data: { cuentas },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
 
-/**
- * GET /api/cuentas
- * Ruta protegida (admin): Lista todas las cuentas del banco con datos del titular.
- * Soporta filtros: ?tipoCuenta=caja_ahorro&moneda=USD
- */
-const listarTodas = async (req, res, next) => {
-  try {
-    const { tipoCuenta, moneda } = req.query;
-    const cuentas = await accountService.obtenerTodas({ tipoCuenta, moneda });
-    res.status(200).json({
-      status: "ok",
-      message: `Se encontraron ${cuentas.length} cuenta(s).`,
-      data: { cuentas },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * PUT /api/cuentas/:id/saldo
- * Ruta protegida (admin): Actualiza el saldo de una cuenta.
- */
-const actualizarSaldo = async (req, res, next) => {
-  try {
-    const { saldo } = req.body;
-
-    if (saldo === undefined || saldo < 0) {
-      return res.status(400).json({
-        status: "error",
-        message: "El saldo debe ser un número mayor o igual a 0.",
-        data: null,
-      });
-    }
-
-    const cuenta = await accountService.actualizarSaldo(req.params.id, saldo);
-    res.status(200).json({
-      status: "ok",
-      message: "Saldo actualizado correctamente.",
-      data: { cuenta },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * DELETE /api/cuentas/:id
- * Ruta protegida (admin): Desactiva una cuenta bancaria.
- */
-const desactivar = async (req, res, next) => {
-  try {
-    const resultado = await accountService.desactivarCuenta(req.params.id);
-    res.status(200).json({
-      status: "ok",
-      message: resultado.mensaje,
-      data: null,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports = { crear, misCuentas, listarTodas, actualizarSaldo, desactivar };
+// ==========================================
+// EXPORTACIÓN
+// ==========================================
+// Exportamos solo la función (no un objeto) porque es lo único que contiene este módulo
+// Se importará en app.js o index.js para llamarla al iniciar el servidor
+module.exports = connectDB;
