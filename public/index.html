@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Talk A Bank</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0a2540;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 2rem;
+    }
+    .logo { font-size: 3rem; font-weight: 800; color: #00d4aa; margin-bottom: 0.5rem; }
+    .tagline { font-size: 1.1rem; color: #a0b3c8; margin-bottom: 2.5rem; }
+    .card {
+      background: #132f4c;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    }
+    h2 { color: #00d4aa; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th { background: #0a2540; color: #00d4aa; padding: 0.6rem; text-align: left; }
+    td { padding: 0.6rem; border-bottom: 1px solid #1e3a50; color: #cdd8e3; font-size: 0.9rem; }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .public  { background: #1a5c3a; color: #4ade80; }
+    .private { background: #5c1a1a; color: #f87171; }
+    footer { margin-top: 2rem; color: #4a6a7a; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <div class="logo">Talk A Bank</div>
+  <p class="tagline">Tu banco digital. Seguro, simple y moderno.</p>
+
+  <div class="card">
+    <h2>📡 API RESTful — Endpoints disponibles</h2>
+    <table>
+      <thead>
+        <tr><th>Método</th><th>Ruta</th><th>Acceso</th><th>Descripción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>GET</td><td>/status</td><td><span class="badge public">público</span></td><td>Estado del servidor</td></tr>
+        <tr><td>POST</td><td>/api/auth/registro</td><td><span class="badge public">público</span></td><td>Registrar usuario</td></tr>
+        <tr><td>POST</td><td>/api/auth/login</td><td><span class="badge public">público</span></td><td>Iniciar sesión (JWT)</td></tr>
+        <tr><td>GET</td><td>/api/auth/perfil</td><td><span class="badge private">JWT</span></td><td>Ver perfil propio</td></tr>
+        <tr><td>GET</td><td>/api/usuarios</td><td><span class="badge private">admin</span></td><td>Listar usuarios</td></tr>
+        <tr><td>GET</td><td>/api/usuarios/:id</td><td><span class="badge private">JWT</span></td><td>Ver usuario</td></tr>
+        <tr><td>PUT</td><td>/api/usuarios/:id</td><td><span class="badge private">JWT</span></td><td>Actualizar usuario</td></tr>
+        <tr><td>DELETE</td><td>/api/usuarios/:id</td><td><span class="badge private">admin</span></td><td>Desactivar usuario</td></tr>
+        <tr><td>POST</td><td>/api/cuentas</td><td><span class="badge private">JWT</span></td><td>Crear cuenta bancaria</td></tr>
+        <tr><td>GET</td><td>/api/cuentas/mis-cuentas</td><td><span class="badge private">JWT</span></td><td>Mis cuentas</td></tr>
+        <tr><td>GET</td><td>/api/cuentas</td><td><span class="badge private">admin</span></td><td>Todas las cuentas</td></tr>
+        <tr><td>PUT</td><td>/api/cuentas/:id/saldo</td><td><span class="badge private">admin</span></td><td>Actualizar saldo</td></tr>
+        <tr><td>DELETE</td><td>/api/cuentas/:id</td><td><span class="badge private">admin</span></td><td>Desactivar cuenta</td></tr>
+        <tr><td>POST</td><td>/api/upload/foto-perfil</td><td><span class="badge private">JWT</span></td><td>Subir foto de perfil</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>Talk A Bank &copy; 2026</footer>
+</body>
+</html>
